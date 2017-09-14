@@ -19,11 +19,11 @@ class FaceView: UIView {
     @IBInspectable
     var lineWidth: CGFloat = 3 { didSet { setNeedsDisplay() } }
     @IBInspectable
-    var color: UIColor = UIColor.blueColor() { didSet { setNeedsDisplay() } }
+    var color: UIColor = UIColor.blue { didSet { setNeedsDisplay() } }
     @IBInspectable
     var scale: CGFloat = 0.9 { didSet { setNeedsDisplay() } }
     var faceCenter: CGPoint {
-        return convertPoint(center, fromView: superview)
+        return convert(center, from: superview)
     }
     var faceRadius: CGFloat {
         return min(bounds.size.width, bounds.size.height) / 2 * scale
@@ -76,27 +76,27 @@ class FaceView: UIView {
         let cp2 = CGPoint(x: end.x - mouthWidth / 3, y: cp1.y)
         
         let path = UIBezierPath()
-        path.moveToPoint(start)
-        path.addCurveToPoint(end, controlPoint1: cp1, controlPoint2: cp2)
+        path.move(to: start)
+        path.addCurve(to: end, controlPoint1: cp1, controlPoint2: cp2)
         path.lineWidth = lineWidth
         return path
     }
     
-    override func drawRect(rect: CGRect)
+    override func draw(_ rect: CGRect)
     {
         let facePath = UIBezierPath(arcCenter: faceCenter, radius: faceRadius, startAngle: 0, endAngle: CGFloat(2*M_PI), clockwise: true)
         facePath.lineWidth = lineWidth
         color.set()
         facePath.stroke()
         
-        bezierPathForEye(.Left).stroke()
-        bezierPathForEye(.Right).stroke()
+        bezierPathForEye(whichEye: .Left).stroke()
+        bezierPathForEye(whichEye: .Right).stroke()
         
 //delegate or data source
-        let smiliness = dataSource?.smilinessForFaceView(self) ?? 0.0
+        let smiliness = dataSource?.smilinessForFaceView(sender: self) ?? 0.0
 //        let smiliness = 4.0
         
-        let smilePath = bezierPathForSmile(smiliness)
+        let smilePath = bezierPathForSmile(fractionOfMaxSmile: smiliness)
         smilePath.stroke()
         
     }
